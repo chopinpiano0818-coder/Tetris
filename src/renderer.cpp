@@ -2143,4 +2143,154 @@ void Renderer::drawMenuItem(
             );
 
         drawPanel(
-            centerX
+            centerX -
+            190 -
+            extra,
+
+            y - 10,
+
+            380 +
+            extra * 2,
+
+            48,
+
+            220
+        );
+    }
+
+    drawText(
+        selected
+            ? "▶ " +
+                text +
+                " ◀"
+            : text,
+
+        centerX,
+        y,
+        selected ? 26 : 18,
+        true,
+        selected ? 255 : 185
+    );
+}
+
+// ============================================================
+// TEXT
+// ============================================================
+
+void Renderer::drawText(
+    const std::string& text,
+    int x,
+    int y,
+    int size,
+    bool centered,
+    Uint8 alpha
+)
+{
+    TTF_Font* font =
+        mFontSmall;
+
+    if (size >= 55)
+    {
+        font =
+            mFontTitle;
+    }
+    else if (size >= 34)
+    {
+        font =
+            mFontLarge;
+    }
+    else if (size >= 23)
+    {
+        font =
+            mFontMedium;
+    }
+
+    if (!font)
+    {
+        return;
+    }
+
+    SDL_Color color
+    {
+        248,
+        250,
+        255,
+        alpha
+    };
+
+    SDL_Surface* surface =
+        TTF_RenderUTF8_Blended(
+            font,
+            text.c_str(),
+            color
+        );
+
+    if (!surface)
+    {
+        return;
+    }
+
+    SDL_Texture* texture =
+        SDL_CreateTextureFromSurface(
+            mRenderer,
+            surface
+        );
+
+    if (!texture)
+    {
+        SDL_FreeSurface(
+            surface
+        );
+
+        return;
+    }
+
+    SDL_SetTextureAlphaMod(
+        texture,
+        alpha
+    );
+
+    SDL_Rect destination
+    {
+        centered
+            ? x -
+              surface->w / 2
+            : x,
+
+        y,
+
+        surface->w,
+        surface->h
+    };
+
+    SDL_RenderCopy(
+        mRenderer,
+        texture,
+        nullptr,
+        &destination
+    );
+
+    SDL_DestroyTexture(
+        texture
+    );
+
+    SDL_FreeSurface(
+        surface
+    );
+}
+
+// ============================================================
+// Output size
+// ============================================================
+
+void Renderer::getOutputSize(
+    int& width,
+    int& height
+) const
+{
+    SDL_GetRendererOutputSize(
+        mRenderer,
+        &width,
+        &height
+    );
+}
