@@ -1,7 +1,5 @@
 #include "stages.hpp"
 
-#include <algorithm>
-
 // ============================================================
 // Constructor
 // ============================================================
@@ -14,7 +12,7 @@ StageManager::StageManager(
     createStages();
     refreshUnlocks();
 
-    // 起動直後に大量の「新規解禁」が出ないようにする
+    // 起動時は「新しく解放！」扱いにしない
     mNewlyUnlocked.clear();
 }
 
@@ -26,101 +24,75 @@ void StageManager::createStages()
 {
     mStages.clear();
 
-    // --------------------------------------------------------
-    // id
-    // 名前
-    // 必要プレイヤーレベル
-    // --------------------------------------------------------
+    mStages.push_back({
+        0,
+        "クラシック",
+        1,
+        false
+    });
 
-    mStages.push_back(
-        {
-            0,
-            "CLASSIC",
-            1,
-            false
-        }
-    );
+    mStages.push_back({
+        1,
+        "ネオンシティ",
+        3,
+        false
+    });
 
-    mStages.push_back(
-        {
-            1,
-            "NEON CITY",
-            3,
-            false
-        }
-    );
+    mStages.push_back({
+        2,
+        "サンセット",
+        5,
+        false
+    });
 
-    mStages.push_back(
-        {
-            2,
-            "SUNSET",
-            5,
-            false
-        }
-    );
+    mStages.push_back({
+        3,
+        "アイスワールド",
+        8,
+        false
+    });
 
-    mStages.push_back(
-        {
-            3,
-            "ARCTIC",
-            8,
-            false
-        }
-    );
+    mStages.push_back({
+        4,
+        "ボルケーノ",
+        12,
+        false
+    });
 
-    mStages.push_back(
-        {
-            4,
-            "VOLCANO",
-            12,
-            false
-        }
-    );
+    mStages.push_back({
+        5,
+        "サイバーグリッド",
+        16,
+        false
+    });
 
-    mStages.push_back(
-        {
-            5,
-            "CYBER GRID",
-            16,
-            false
-        }
-    );
+    mStages.push_back({
+        6,
+        "スペース",
+        22,
+        false
+    });
 
-    mStages.push_back(
-        {
-            6,
-            "SPACE",
-            22,
-            false
-        }
-    );
+    mStages.push_back({
+        7,
+        "ヴォイド",
+        30,
+        false
+    });
 
-    mStages.push_back(
-        {
-            7,
-            "VOID",
-            30,
-            false
-        }
-    );
+    mStages.push_back({
+        8,
+        "ギャラクシー",
+        40,
+        false
+    });
 
-    mStages.push_back(
-        {
-            8,
-            "GALAXY",
-            40,
-            false
-        }
-    );
-
-    mStages.push_back(
-        {
-            9,
-            "MASTER",
-            50,
-            false
-        }
-    );
+    mStages.push_back({
+        9,
+        "マスター",
+        50,
+        false
+    });
 }
 
 // ============================================================
@@ -144,15 +116,12 @@ void StageManager::refreshUnlocks()
         const bool wasUnlocked =
             stage.unlocked;
 
-        const bool shouldUnlock =
-            level >= stage.requiredLevel;
-
         stage.unlocked =
-            shouldUnlock;
+            level >= stage.requiredLevel;
 
         if (
             !wasUnlocked &&
-            shouldUnlock
+            stage.unlocked
         )
         {
             mNewlyUnlocked.push_back(
@@ -179,10 +148,9 @@ StageManager::stage(
 {
     if (
         id < 0 ||
-        id >=
-            static_cast<int>(
-                mStages.size()
-            )
+        id >= static_cast<int>(
+            mStages.size()
+        )
     )
     {
         return mStages.front();
@@ -204,10 +172,9 @@ bool StageManager::isUnlocked(
 {
     if (
         id < 0 ||
-        id >=
-            static_cast<int>(
-                mStages.size()
-            )
+        id >= static_cast<int>(
+            mStages.size()
+        )
     )
     {
         return false;
