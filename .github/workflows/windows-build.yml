@@ -1,0 +1,98 @@
+name: Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      # ======================================================
+      # ソース取得
+      # ======================================================
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ======================================================
+      # vcpkg
+      # ======================================================
+
+      - name: Clone vcpkg
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git C:/vcpkg
+          C:/vcpkg/bootstrap-vcpkg.bat
+
+      # ======================================================
+      # SDL2
+      # ======================================================
+
+      - name: Install SDL2
+        shell: pwsh
+        run: |
+          C:/vcpkg/vcpkg.exe install sdl2:x64-windows
+          C:/vcpkg/vcpkg.exe install sdl2-ttf:x64-windows
+
+      # ======================================================
+      # CMake
+      # ======================================================
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake -S . -B build `
+            -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DVCPKG_TARGET_TRIPLET=x64-windows
+
+      # ======================================================
+      # Build
+      # ======================================================
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build build --config Release
+
+      # ======================================================
+      # 配布フォルダ作成
+      # ======================================================
+
+      - name: Create Windows package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          New-Item -ItemType Directory -Force -Path dist/save
+
+          Copy-Item build/bin/TetrisComplete.exe dist/
+
+          if (Test-Path build/vcpkg_installed/x64-windows/bin) {
+              Copy-Item build/vcpkg_installed/x64-windows/bin/*.dll dist/
+          }
+
+      # ======================================================
+      # ZIP
+      # ======================================================
+
+      - name: Create ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path dist/* `
+            -DestinationPath TetrisComplete-Windows-x64.zip `
+            -Force
+
+      # ======================================================
+      # GitHubからダウンロード可能にする
+      # ======================================================
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: TetrisComplete-Windows-x64
+          path: TetrisComplete-Windows-x64.zip
