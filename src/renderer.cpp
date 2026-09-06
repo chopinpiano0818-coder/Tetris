@@ -13,11 +13,57 @@
 #include <sstream>
 
 // ============================================================
-// 日本語フォント
+// Cross-platform Japanese font loader
 // ============================================================
 
-static constexpr const char* FONT_PATH =
-    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc";
+static TTF_Font* openJapaneseFont(
+    int size
+)
+{
+#ifdef _WIN32
+
+    // Windows標準日本語フォント候補
+    const char* candidates[] =
+    {
+        "C:/Windows/Fonts/YuGothB.ttc",
+        "C:/Windows/Fonts/YuGothM.ttc",
+        "C:/Windows/Fonts/meiryob.ttc",
+        "C:/Windows/Fonts/meiryo.ttc",
+        "C:/Windows/Fonts/msgothic.ttc"
+    };
+
+#else
+
+    // Raspberry Pi / Linux
+    const char* candidates[] =
+    {
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Bold.ttc",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    };
+
+#endif
+
+    for (
+        const char* path :
+        candidates
+    )
+    {
+        TTF_Font* font =
+            TTF_OpenFont(
+                path,
+                size
+            );
+
+        if (font)
+        {
+            return font;
+        }
+    }
+
+    return nullptr;
+}
 
 // ============================================================
 // Constructor
