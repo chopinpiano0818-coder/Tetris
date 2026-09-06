@@ -5,21 +5,19 @@
 #include "progression.hpp"
 #include "stages.hpp"
 #include "tetromino.hpp"
+#include "renderer3d.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
 
-// renderer3d.cpp で実装
-#include "renderer3d.hpp"
-
 // ============================================================
-// Font
+// 日本語フォント
 // ============================================================
 
 static constexpr const char* FONT_PATH =
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf";
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc";
 
 // ============================================================
 // Constructor
@@ -104,7 +102,7 @@ void Renderer::beginFrame()
 {
     SDL_SetRenderDrawColor(
         mRenderer,
-        7, 9, 18, 255
+        5, 6, 12, 255
     );
 
     SDL_RenderClear(
@@ -120,7 +118,7 @@ void Renderer::endFrame()
 }
 
 // ============================================================
-// Main render switch
+// Main render
 // ============================================================
 
 void Renderer::render(
@@ -194,11 +192,13 @@ void Renderer::renderHome(
 
     const int titleY =
         static_cast<int>(
-            90 - (1.0f - intro) * 70.0f
+            85 -
+            (1.0f - intro) *
+            65.0f
         );
 
     drawText(
-        "TETRIS",
+        "テトリス",
         w / 2,
         titleY,
         68,
@@ -211,13 +211,13 @@ void Renderer::renderHome(
         titleY + 72,
         26,
         true,
-        210
+        220
     );
 
     std::ostringstream levelText;
 
     levelText
-        << "PLAYER LV."
+        << "プレイヤーレベル "
         << progression.playerLevel()
         << "   XP "
         << progression.currentXP()
@@ -229,16 +229,15 @@ void Renderer::renderHome(
         w / 2,
         205,
         18,
-        true,
-        220
+        true
     );
 
     const char* items[] =
     {
-        "PLAY 2D",
-        "PLAY 3D",
-        "SETTINGS",
-        "QUIT"
+        "2Dで遊ぶ",
+        "3Dで遊ぶ",
+        "設定",
+        "終了"
     };
 
     for (int i = 0; i < 4; ++i)
@@ -253,12 +252,12 @@ void Renderer::renderHome(
     }
 
     drawText(
-        "ARROWS / LEFT STICK : MOVE     A / ENTER : SELECT",
+        "十字キー / 左スティック：移動   A / Enter：決定",
         w / 2,
         h - 45,
         18,
         true,
-        150
+        170
     );
 }
 
@@ -277,33 +276,33 @@ void Renderer::renderModeSelect(
     renderStageBackground(1);
 
     drawText(
-        "SELECT MODE",
+        "モード選択",
         w / 2,
-        70,
+        65,
         40,
         true
     );
 
     const char* modes[] =
     {
-        "ENDLESS",
-        "RUNNER",
-        "SPRINT",
-        "ULTRA"
+        "エンドレス",
+        "ランナー",
+        "スプリント",
+        "ウルトラ"
     };
 
     const char* descriptions[] =
     {
-        "PLAY UNTIL GAME OVER",
-        "SCORE ATTACK - 120 SEC",
-        "CLEAR 40 LINES",
-        "SCORE ATTACK - 180 SEC"
+        "ゲームオーバーまで挑戦",
+        "120秒で高得点を狙う",
+        "40ライン消去でクリア",
+        "180秒のスコアアタック"
     };
 
     for (int i = 0; i < 4; ++i)
     {
         const int y =
-            190 + i * 105;
+            180 + i * 105;
 
         const bool selected =
             ui.modeSelection() == i;
@@ -311,11 +310,11 @@ void Renderer::renderModeSelect(
         if (selected)
         {
             drawPanel(
-                w / 2 - 240,
-                y - 18,
-                480,
-                78,
-                200
+                w / 2 - 260,
+                y - 15,
+                520,
+                80,
+                220
             );
         }
 
@@ -330,20 +329,20 @@ void Renderer::renderModeSelect(
         drawText(
             descriptions[i],
             w / 2,
-            y + 35,
+            y + 38,
             18,
             true,
-            selected ? 220 : 120
+            selected ? 235 : 150
         );
     }
 
     drawText(
-        "B / ESC : BACK",
+        "B / ESC：戻る",
         w / 2,
         h - 40,
         18,
         true,
-        150
+        160
     );
 }
 
@@ -364,14 +363,12 @@ void Renderer::renderStageSelect(
     const int selected =
         ui.stageSelection();
 
-    renderStageBackground(
-        selected
-    );
+    renderStageBackground(selected);
 
     drawText(
-        "SELECT STAGE",
+        "ステージ選択",
         w / 2,
-        50,
+        45,
         40,
         true
     );
@@ -379,9 +376,9 @@ void Renderer::renderStageSelect(
     const auto& stages =
         stageManager.stages();
 
-    constexpr int CARD_W = 190;
-    constexpr int CARD_H = 100;
-    constexpr int GAP = 20;
+    constexpr int CARD_W = 200;
+    constexpr int CARD_H = 105;
+    constexpr int GAP = 22;
 
     const int columns = 3;
 
@@ -394,7 +391,9 @@ void Renderer::renderStageSelect(
 
     for (
         int i = 0;
-        i < static_cast<int>(stages.size());
+        i < static_cast<int>(
+            stages.size()
+        );
         ++i
     )
     {
@@ -406,11 +405,13 @@ void Renderer::renderStageSelect(
 
         const int x =
             startX +
-            col * (CARD_W + GAP);
+            col *
+            (CARD_W + GAP);
 
         const int y =
-            135 +
-            row * (CARD_H + GAP);
+            130 +
+            row *
+            (CARD_H + GAP);
 
         const bool isSelected =
             i == selected;
@@ -420,60 +421,62 @@ void Renderer::renderStageSelect(
             y,
             CARD_W,
             CARD_H,
-            isSelected ? 230 : 150
+            isSelected ? 235 : 165
         );
 
-        if (stages[i].unlocked)
+        if (
+            stages[i].unlocked
+        )
         {
             drawText(
                 stages[i].name,
                 x + CARD_W / 2,
-                y + 20,
+                y + 22,
                 18,
                 true
             );
 
             drawText(
-                "UNLOCKED",
+                "解放済み",
                 x + CARD_W / 2,
-                y + 58,
+                y + 63,
                 18,
                 true,
-                170
+                190
             );
         }
         else
         {
             drawText(
-                "LOCKED",
+                "未解放",
                 x + CARD_W / 2,
-                y + 18,
+                y + 20,
                 18,
                 true,
-                140
+                150
             );
 
             drawText(
-                "LV." +
+                "必要レベル " +
                 std::to_string(
                     stages[i].requiredLevel
                 ),
                 x + CARD_W / 2,
-                y + 57,
+                y + 62,
                 18,
                 true,
-                140
+                150
             );
         }
     }
 
     drawText(
-        "PLAYER LV." +
-        std::to_string(
+        "現在のプレイヤーレベル "
+        + std::to_string(
             progression.playerLevel()
         ),
         w / 2,
-        h - 45,
+        h - 42,
         18,
         true
     );
@@ -503,6 +506,7 @@ void Renderer::renderPlaying(
         );
 
         renderSidePanel(game);
+
         return;
     }
 
@@ -549,18 +553,17 @@ void Renderer::renderBoard2D(
     const int originY =
         (h - boardH) / 2;
 
-    // Board background
     SDL_SetRenderDrawColor(
         mRenderer,
-        5, 8, 15, 225
+        3, 5, 12, 230
     );
 
     SDL_Rect background
     {
-        originX - 4,
-        originY - 4,
-        boardW + 8,
-        boardH + 8
+        originX - 5,
+        originY - 5,
+        boardW + 10,
+        boardH + 10
     };
 
     SDL_RenderFillRect(
@@ -568,10 +571,21 @@ void Renderer::renderBoard2D(
         &background
     );
 
+    // 外枠
+    SDL_SetRenderDrawColor(
+        mRenderer,
+        180, 190, 230, 230
+    );
+
+    SDL_RenderDrawRect(
+        mRenderer,
+        &background
+    );
+
     // Grid
     SDL_SetRenderDrawColor(
         mRenderer,
-        40, 45, 60, 90
+        90, 100, 130, 70
     );
 
     for (
@@ -604,7 +618,6 @@ void Renderer::renderBoard2D(
         );
     }
 
-    // Locked blocks
     const auto& board =
         game.board();
 
@@ -635,8 +648,9 @@ void Renderer::renderBoard2D(
         }
     }
 
-    // Ghost
-    if (mSettings->showGhost)
+    if (
+        mSettings->showGhost
+    )
     {
         const Tetromino& piece =
             game.currentPiece();
@@ -671,7 +685,6 @@ void Renderer::renderBoard2D(
         }
     }
 
-    // Current piece
     const Tetromino& piece =
         game.currentPiece();
 
@@ -699,7 +712,6 @@ void Renderer::renderBoard2D(
         }
     }
 
-    // Line-clear flash
     if (
         mSettings->lineClearFlash &&
         game.lineClearAnimation() > 0.0f
@@ -707,7 +719,7 @@ void Renderer::renderBoard2D(
     {
         const Uint8 alpha =
             static_cast<Uint8>(
-                90.0f *
+                100.0f *
                 game.lineClearAnimation() *
                 mSettings->animationIntensity
             );
@@ -755,11 +767,11 @@ void Renderer::renderSidePanel(
         45,
         200,
         h - 90,
-        170
+        190
     );
 
     drawText(
-        "SCORE",
+        "スコア",
         panelX + 20,
         70,
         18
@@ -770,27 +782,27 @@ void Renderer::renderSidePanel(
             game.score()
         ),
         panelX + 20,
-        95,
+        98,
         26
     );
 
     drawText(
-        "LINES  " +
+        "ライン  " +
         std::to_string(
             game.lines()
         ),
         panelX + 20,
-        145,
+        150,
         18
     );
 
     drawText(
-        "LEVEL  " +
+        "レベル  " +
         std::to_string(
             game.gameLevel()
         ),
         panelX + 20,
-        175,
+        180,
         18
     );
 
@@ -809,16 +821,16 @@ void Renderer::renderSidePanel(
             << game.remainingTime();
 
         drawText(
-            "TIME",
+            "残り時間",
             panelX + 20,
-            215,
+            220,
             18
         );
 
         drawText(
             timer.str(),
             panelX + 20,
-            240,
+            248,
             26
         );
     }
@@ -828,39 +840,45 @@ void Renderer::renderSidePanel(
     )
     {
         drawText(
-            "TARGET 40",
+            "目標 40ライン",
             panelX + 20,
-            220,
+            225,
             18
         );
     }
 
-    if (mSettings->showHold)
+    if (
+        mSettings->showHold
+    )
     {
         drawText(
-            "HOLD",
+            "ホールド",
             panelX + 20,
-            295,
+            300,
             18
         );
 
-        if (game.hasHoldPiece())
+        if (
+            game.hasHoldPiece()
+        )
         {
             renderMiniPiece(
                 game.holdPiece(),
                 panelX + 100,
-                350,
+                355,
                 18
             );
         }
     }
 
-    if (mSettings->showNext)
+    if (
+        mSettings->showNext
+    )
     {
         drawText(
-            "NEXT",
+            "ネクスト",
             panelX + 20,
-            400,
+            405,
             18
         );
 
@@ -885,7 +903,7 @@ void Renderer::renderSidePanel(
             renderMiniPiece(
                 type,
                 panelX + 100,
-                450 + index * 55,
+                455 + index * 55,
                 12
             );
 
@@ -893,18 +911,20 @@ void Renderer::renderSidePanel(
         }
     }
 
-    if (game.isPaused())
+    if (
+        game.isPaused()
+    )
     {
         drawPanel(
-            w / 2 - 150,
-            h / 2 - 60,
-            300,
-            120,
-            235
+            w / 2 - 170,
+            h / 2 - 65,
+            340,
+            130,
+            240
         );
 
         drawText(
-            "PAUSED",
+            "ポーズ中",
             w / 2,
             h / 2 - 20,
             40,
@@ -929,17 +949,17 @@ void Renderer::renderResult(
     );
 
     drawPanel(
-        w / 2 - 280,
-        70,
-        560,
-        h - 140,
-        220
+        w / 2 - 290,
+        65,
+        580,
+        h - 130,
+        225
     );
 
     drawText(
-        "RESULT",
+        "リザルト",
         w / 2,
-        100,
+        95,
         40,
         true
     );
@@ -951,59 +971,71 @@ void Renderer::renderResult(
         ui.lastProgressionResult();
 
     drawText(
-        "SCORE  " +
-        std::to_string(result.score),
+        "スコア  " +
+        std::to_string(
+            result.score
+        ),
         w / 2,
-        185,
+        180,
         26,
         true
     );
 
     drawText(
-        "LINES  " +
-        std::to_string(result.lines),
+        "ライン  " +
+        std::to_string(
+            result.lines
+        ),
         w / 2,
-        230,
+        225,
         26,
         true
     );
 
     drawText(
-        "TETRIS  " +
-        std::to_string(result.tetrises),
+        "テトリス  " +
+        std::to_string(
+            result.tetrises
+        ),
         w / 2,
-        275,
+        270,
         18,
         true
     );
 
     drawText(
-        "MAX COMBO  " +
-        std::to_string(result.maxCombo),
+        "最大コンボ  " +
+        std::to_string(
+            result.maxCombo
+        ),
         w / 2,
-        310,
+        305,
         18,
         true
     );
 
     drawText(
-        "XP +" +
-        std::to_string(progress.xpEarned),
+        "獲得XP +" +
+        std::to_string(
+            progress.xpEarned
+        ),
         w / 2,
-        360,
+        355,
         26,
         true
     );
 
-    if (progress.levelUp)
+    if (
+        progress.levelUp
+    )
     {
         drawText(
-            "LEVEL UP!  LV." +
+            "レベルアップ！  LV." +
             std::to_string(
                 progress.newLevel
             ),
             w / 2,
-            405,
+            400,
             26,
             true
         );
@@ -1011,9 +1043,9 @@ void Renderer::renderResult(
 
     const char* items[] =
     {
-        "RETRY",
-        "STAGE SELECT",
-        "HOME"
+        "もう一度",
+        "ステージ選択",
+        "ホーム"
     };
 
     for (int i = 0; i < 3; ++i)
@@ -1021,7 +1053,7 @@ void Renderer::renderResult(
         drawMenuItem(
             items[i],
             w / 2,
-            480 + i * 55,
+            475 + i * 55,
             ui.resultSelection() == i,
             ui.selectionPulse()
         );
@@ -1039,10 +1071,12 @@ void Renderer::renderSettings(
     int w, h;
     getOutputSize(w, h);
 
+    renderStageBackground(5);
+
     drawText(
-        "SETTINGS",
+        "設定",
         w / 2,
-        35,
+        30,
         40,
         true
     );
@@ -1052,70 +1086,97 @@ void Renderer::renderSettings(
 
     const std::string items[] =
     {
-        "MASTER VOLUME   " +
+        "全体音量        " +
             std::to_string(
                 static_cast<int>(
-                    s.masterVolume * 100
+                    s.masterVolume *
+                    100
                 )
             ),
 
-        "MUSIC VOLUME    " +
+        "BGM音量         " +
             std::to_string(
                 static_cast<int>(
-                    s.musicVolume * 100
+                    s.musicVolume *
+                    100
                 )
             ),
 
-        "SOUND VOLUME    " +
+        "効果音量        " +
             std::to_string(
                 static_cast<int>(
-                    s.soundVolume * 100
+                    s.soundVolume *
+                    100
                 )
             ),
 
-        std::string("ANIMATION       ") +
-            (s.animationsEnabled
-                ? "ON"
-                : "OFF"),
+        std::string(
+            "アニメーション   "
+        ) +
+            (
+                s.animationsEnabled
+                    ? "ON"
+                    : "OFF"
+            ),
 
-        "CAMERA SPEED    " +
+        "3Dカメラ速度     " +
             std::to_string(
                 static_cast<int>(
                     s.cameraSensitivity
                 )
             ),
 
-        "STICK DEADZONE  " +
+        "スティック遊び   " +
             std::to_string(
                 s.leftStickDeadzone
             ),
 
-        "DAS             " +
+        "長押し開始       " +
             std::to_string(
                 static_cast<int>(
-                    s.dasDelay * 1000
+                    s.dasDelay *
+                    1000
                 )
-            ) + "ms",
+            ) +
+            "ms",
 
-        "ARR             " +
+        "連続移動速度     " +
             std::to_string(
                 static_cast<int>(
-                    s.arrDelay * 1000
+                    s.arrDelay *
+                    1000
                 )
-            ) + "ms",
+            ) +
+            "ms",
 
-        std::string("GHOST           ") +
-            (s.showGhost ? "ON" : "OFF"),
+        std::string(
+            "ゴースト表示     "
+        ) +
+            (
+                s.showGhost
+                    ? "ON"
+                    : "OFF"
+            ),
 
-        std::string("VIBRATION       ") +
-            (s.vibrationEnabled
-                ? "ON"
-                : "OFF"),
+        std::string(
+            "振動             "
+        ) +
+            (
+                s.vibrationEnabled
+                    ? "ON"
+                    : "OFF"
+            ),
 
-        std::string("FULLSCREEN      ") +
-            (s.fullscreen ? "ON" : "OFF"),
+        std::string(
+            "フルスクリーン   "
+        ) +
+            (
+                s.fullscreen
+                    ? "ON"
+                    : "OFF"
+            ),
 
-        "BACK"
+        "戻る"
     };
 
     for (int i = 0; i < 12; ++i)
@@ -1123,19 +1184,19 @@ void Renderer::renderSettings(
         drawMenuItem(
             items[i],
             w / 2,
-            105 + i * 47,
+            100 + i * 47,
             ui.settingsSelection() == i,
             ui.selectionPulse()
         );
     }
 
     drawText(
-        "LEFT / RIGHT : CHANGE",
+        "左右：変更   A / Enter：切り替え",
         w / 2,
         h - 35,
         18,
         true,
-        150
+        170
     );
 }
 
@@ -1161,19 +1222,34 @@ void Renderer::renderMiniPiece(
     int minY = 99;
     int maxY = -99;
 
-    for (const auto& cell : cells)
+    for (
+        const auto& cell :
+        cells
+    )
     {
         minX =
-            std::min(minX, cell.x);
+            std::min(
+                minX,
+                cell.x
+            );
 
         maxX =
-            std::max(maxX, cell.x);
+            std::max(
+                maxX,
+                cell.x
+            );
 
         minY =
-            std::min(minY, cell.y);
+            std::min(
+                minY,
+                cell.y
+            );
 
         maxY =
-            std::max(maxY, cell.y);
+            std::max(
+                maxY,
+                cell.y
+            );
     }
 
     const int width =
@@ -1187,18 +1263,29 @@ void Renderer::renderMiniPiece(
     const int startX =
         centerX -
         width / 2 -
-        minX * cellSize;
+        minX *
+        cellSize;
 
     const int startY =
         centerY -
         height / 2 -
-        minY * cellSize;
+        minY *
+        cellSize;
 
-    for (const auto& cell : cells)
+    for (
+        const auto& cell :
+        cells
+    )
     {
         drawBlock(
-            startX + cell.x * cellSize,
-            startY + cell.y * cellSize,
+            startX +
+            cell.x *
+            cellSize,
+
+            startY +
+            cell.y *
+            cellSize,
+
             cellSize,
             type,
             alpha
@@ -1226,31 +1313,45 @@ void Renderer::drawBlock(
     switch (type)
     {
         case TetrominoType::I:
-            r = 50;  g = 220; b = 240;
+            r = 45;
+            g = 225;
+            b = 245;
             break;
 
         case TetrominoType::O:
-            r = 245; g = 220; b = 50;
+            r = 250;
+            g = 225;
+            b = 45;
             break;
 
         case TetrominoType::T:
-            r = 180; g = 80;  b = 220;
+            r = 185;
+            g = 75;
+            b = 235;
             break;
 
         case TetrominoType::S:
-            r = 70;  g = 210; b = 100;
+            r = 65;
+            g = 220;
+            b = 95;
             break;
 
         case TetrominoType::Z:
-            r = 230; g = 65;  b = 70;
+            r = 240;
+            g = 60;
+            b = 65;
             break;
 
         case TetrominoType::J:
-            r = 65;  g = 100; b = 230;
+            r = 55;
+            g = 100;
+            b = 240;
             break;
 
         case TetrominoType::L:
-            r = 240; g = 145; b = 45;
+            r = 245;
+            g = 145;
+            b = 35;
             break;
 
         default:
@@ -1267,7 +1368,10 @@ void Renderer::drawBlock(
 
     SDL_SetRenderDrawColor(
         mRenderer,
-        r, g, b, alpha
+        r,
+        g,
+        b,
+        alpha
     );
 
     SDL_RenderFillRect(
@@ -1275,12 +1379,27 @@ void Renderer::drawBlock(
         &rect
     );
 
-    // 光ってる上辺
     SDL_SetRenderDrawColor(
         mRenderer,
-        std::min(255, r + 35),
-        std::min(255, g + 35),
-        std::min(255, b + 35),
+
+        std::min(
+            255,
+            static_cast<int>(r) +
+            45
+        ),
+
+        std::min(
+            255,
+            static_cast<int>(g) +
+            45
+        ),
+
+        std::min(
+            255,
+            static_cast<int>(b) +
+            45
+        ),
+
         alpha
     );
 
@@ -1310,7 +1429,7 @@ void Renderer::drawBlock(
 }
 
 // ============================================================
-// Background
+// BACKGROUND
 // ============================================================
 
 void Renderer::renderStageBackground(
@@ -1320,78 +1439,610 @@ void Renderer::renderStageBackground(
     int w, h;
     getOutputSize(w, h);
 
-    // ステージごとに背景の雰囲気を変える
-    Uint8 r = 8;
-    Uint8 g = 12;
-    Uint8 b = 24;
+    // --------------------------------------------------------
+    // 0 クラシック
+    // --------------------------------------------------------
 
-    switch (stage)
+    if (stage == 0)
     {
-        case 1:
-            r = 15; g = 5;  b = 35;
-            break;
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            6, 18, 42, 255
+        );
 
-        case 2:
-            r = 45; g = 20; b = 20;
-            break;
+        SDL_RenderClear(
+            mRenderer
+        );
 
-        case 3:
-            r = 10; g = 30; b = 45;
-            break;
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            40, 110, 210, 55
+        );
 
-        case 4:
-            r = 45; g = 8;  b = 5;
-            break;
+        for (
+            int x = 0;
+            x < w;
+            x += 50
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                x,
+                0,
+                x,
+                h
+            );
+        }
 
-        case 5:
-            r = 4;  g = 25; b = 25;
-            break;
+        for (
+            int y = 0;
+            y < h;
+            y += 50
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                0,
+                y,
+                w,
+                y
+            );
+        }
 
-        case 6:
-            r = 4;  g = 5;  b = 25;
-            break;
-
-        case 7:
-            r = 3;  g = 3;  b = 8;
-            break;
-
-        case 8:
-            r = 20; g = 5;  b = 35;
-            break;
-
-        case 9:
-            r = 30; g = 20; b = 5;
-            break;
-
-        default:
-            break;
+        return;
     }
 
-    SDL_SetRenderDrawColor(
-        mRenderer,
-        r, g, b, 255
-    );
+    // --------------------------------------------------------
+    // 1 ネオンシティ
+    // --------------------------------------------------------
 
-    SDL_Rect background
+    if (stage == 1)
     {
-        0, 0, w, h
-    };
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            20, 5, 45, 255
+        );
 
-    SDL_RenderFillRect(
-        mRenderer,
-        &background
-    );
+        SDL_RenderClear(
+            mRenderer
+        );
 
-    // 薄い横線
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            255, 30, 210, 90
+        );
+
+        for (
+            int x = -h;
+            x < w;
+            x += 90
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                x,
+                h,
+                x + h,
+                0
+            );
+        }
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            40, 220, 255, 70
+        );
+
+        for (
+            int y = 80;
+            y < h;
+            y += 100
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                0,
+                y,
+                w,
+                y
+            );
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 2 サンセット
+    // --------------------------------------------------------
+
+    if (stage == 2)
+    {
+        for (
+            int y = 0;
+            y < h;
+            ++y
+        )
+        {
+            const float t =
+                static_cast<float>(y) /
+                static_cast<float>(h);
+
+            const Uint8 r =
+                static_cast<Uint8>(
+                    230 -
+                    130 *
+                    t
+                );
+
+            const Uint8 g =
+                static_cast<Uint8>(
+                    100 -
+                    70 *
+                    t
+                );
+
+            const Uint8 b =
+                static_cast<Uint8>(
+                    80 +
+                    110 *
+                    t
+                );
+
+            SDL_SetRenderDrawColor(
+                mRenderer,
+                r,
+                g,
+                b,
+                255
+            );
+
+            SDL_RenderDrawLine(
+                mRenderer,
+                0,
+                y,
+                w,
+                y
+            );
+        }
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            255, 220, 120, 180
+        );
+
+        SDL_Rect sun
+        {
+            w / 2 - 70,
+            110,
+            140,
+            140
+        };
+
+        SDL_RenderFillRect(
+            mRenderer,
+            &sun
+        );
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 3 アイス
+    // --------------------------------------------------------
+
+    if (stage == 3)
+    {
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            12, 55, 85, 255
+        );
+
+        SDL_RenderClear(
+            mRenderer
+        );
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            210, 245, 255, 120
+        );
+
+        for (
+            int y = 20;
+            y < h;
+            y += 70
+        )
+        {
+            for (
+                int x = 20;
+                x < w;
+                x += 85
+            )
+            {
+                SDL_RenderDrawLine(
+                    mRenderer,
+                    x - 6,
+                    y,
+                    x + 6,
+                    y
+                );
+
+                SDL_RenderDrawLine(
+                    mRenderer,
+                    x,
+                    y - 6,
+                    x,
+                    y + 6
+                );
+
+                SDL_RenderDrawLine(
+                    mRenderer,
+                    x - 5,
+                    y - 5,
+                    x + 5,
+                    y + 5
+                );
+
+                SDL_RenderDrawLine(
+                    mRenderer,
+                    x + 5,
+                    y - 5,
+                    x - 5,
+                    y + 5
+                );
+            }
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 4 ボルケーノ
+    // --------------------------------------------------------
+
+    if (stage == 4)
+    {
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            28, 3, 3, 255
+        );
+
+        SDL_RenderClear(
+            mRenderer
+        );
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            255, 70, 10, 130
+        );
+
+        for (
+            int y = h - 50;
+            y > 0;
+            y -= 110
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                0,
+                y,
+                w,
+                y - 35
+            );
+        }
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            255, 155, 20, 90
+        );
+
+        for (
+            int x = 0;
+            x < w;
+            x += 120
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                x,
+                h,
+                x + 70,
+                0
+            );
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 5 サイバー
+    // --------------------------------------------------------
+
+    if (stage == 5)
+    {
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            2, 18, 12, 255
+        );
+
+        SDL_RenderClear(
+            mRenderer
+        );
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            40, 255, 135, 70
+        );
+
+        for (
+            int x = 0;
+            x < w;
+            x += 40
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                x,
+                0,
+                x,
+                h
+            );
+        }
+
+        for (
+            int y = 0;
+            y < h;
+            y += 40
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                0,
+                y,
+                w,
+                y
+            );
+        }
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            100, 255, 190, 120
+        );
+
+        for (
+            int y = 20;
+            y < h;
+            y += 120
+        )
+        {
+            SDL_RenderDrawLine(
+                mRenderer,
+                0,
+                y,
+                w,
+                y
+            );
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 6 スペース
+    // --------------------------------------------------------
+
+    if (stage == 6)
+    {
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            2, 3, 18, 255
+        );
+
+        SDL_RenderClear(
+            mRenderer
+        );
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            255, 255, 255, 200
+        );
+
+        for (
+            int i = 0;
+            i < 140;
+            ++i
+        )
+        {
+            const int x =
+                (i * 97) %
+                std::max(1, w);
+
+            const int y =
+                (i * 53) %
+                std::max(1, h);
+
+            SDL_RenderDrawPoint(
+                mRenderer,
+                x,
+                y
+            );
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 7 VOID
+    // --------------------------------------------------------
+
+    if (stage == 7)
+    {
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            2, 1, 6, 255
+        );
+
+        SDL_RenderClear(
+            mRenderer
+        );
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            95, 25, 155, 80
+        );
+
+        for (
+            int i = 0;
+            i < 12;
+            ++i
+        )
+        {
+            SDL_Rect rect
+            {
+                i * 30,
+                i * 22,
+                w - i * 60,
+                h - i * 44
+            };
+
+            if (
+                rect.w > 0 &&
+                rect.h > 0
+            )
+            {
+                SDL_RenderDrawRect(
+                    mRenderer,
+                    &rect
+                );
+            }
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 8 ギャラクシー
+    // --------------------------------------------------------
+
+    if (stage == 8)
+    {
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            15, 4, 35, 255
+        );
+
+        SDL_RenderClear(
+            mRenderer
+        );
+
+        for (
+            int i = 0;
+            i < 220;
+            ++i
+        )
+        {
+            const int x =
+                (i * 71 + 35) %
+                std::max(1, w);
+
+            const int y =
+                (i * 113 + 19) %
+                std::max(1, h);
+
+            if (i % 3 == 0)
+            {
+                SDL_SetRenderDrawColor(
+                    mRenderer,
+                    150, 140, 255, 210
+                );
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(
+                    mRenderer,
+                    255, 255, 255, 170
+                );
+            }
+
+            SDL_RenderDrawPoint(
+                mRenderer,
+                x,
+                y
+            );
+        }
+
+        SDL_SetRenderDrawColor(
+            mRenderer,
+            120, 45, 220, 55
+        );
+
+        for (
+            int i = 0;
+            i < 10;
+            ++i
+        )
+        {
+            SDL_Rect ring
+            {
+                w / 2 -
+                80 -
+                i * 25,
+
+                h / 2 -
+                40 -
+                i * 15,
+
+                160 +
+                i * 50,
+
+                80 +
+                i * 30
+            };
+
+            SDL_RenderDrawRect(
+                mRenderer,
+                &ring
+            );
+        }
+
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 9 MASTER
+    // --------------------------------------------------------
+
     SDL_SetRenderDrawColor(
         mRenderer,
-        255, 255, 255, 12
+        15, 10, 2, 255
     );
+
+    SDL_RenderClear(
+        mRenderer
+    );
+
+    SDL_SetRenderDrawColor(
+        mRenderer,
+        220, 170, 45, 85
+    );
+
+    for (
+        int x = 0;
+        x < w;
+        x += 70
+    )
+    {
+        SDL_RenderDrawLine(
+            mRenderer,
+            x,
+            0,
+            x,
+            h
+        );
+    }
 
     for (
         int y = 0;
         y < h;
-        y += 40
+        y += 70
     )
     {
         SDL_RenderDrawLine(
@@ -1402,6 +2053,24 @@ void Renderer::renderStageBackground(
             y
         );
     }
+
+    SDL_SetRenderDrawColor(
+        mRenderer,
+        255, 220, 90, 130
+    );
+
+    SDL_Rect border
+    {
+        20,
+        20,
+        w - 40,
+        h - 40
+    };
+
+    SDL_RenderDrawRect(
+        mRenderer,
+        &border
+    );
 }
 
 // ============================================================
@@ -1418,13 +2087,16 @@ void Renderer::drawPanel(
 {
     SDL_SetRenderDrawColor(
         mRenderer,
-        10, 14, 25,
+        8, 12, 24,
         alpha
     );
 
     SDL_Rect rect
     {
-        x, y, w, h
+        x,
+        y,
+        w,
+        h
     };
 
     SDL_RenderFillRect(
@@ -1434,10 +2106,13 @@ void Renderer::drawPanel(
 
     SDL_SetRenderDrawColor(
         mRenderer,
-        110, 130, 180,
-        std::min<int>(
+        160, 180, 230,
+        std::min(
             255,
-            alpha + 20
+            static_cast<int>(
+                alpha
+            ) +
+            25
         )
     );
 
@@ -1463,128 +2138,9 @@ void Renderer::drawMenuItem(
     {
         const int extra =
             static_cast<int>(
-                pulse * 8.0f
+                pulse *
+                8.0f
             );
 
         drawPanel(
-            centerX - 180 - extra,
-            y - 10,
-            360 + extra * 2,
-            48,
-            210
-        );
-    }
-
-    drawText(
-        selected
-            ? "> " + text + " <"
-            : text,
-        centerX,
-        y,
-        selected ? 26 : 18,
-        true,
-        selected ? 255 : 165
-    );
-}
-
-// ============================================================
-// TEXT
-// ============================================================
-
-void Renderer::drawText(
-    const std::string& text,
-    int x,
-    int y,
-    int size,
-    bool centered,
-    Uint8 alpha
-)
-{
-    TTF_Font* font =
-        mFontSmall;
-
-    if (size >= 55)
-        font = mFontTitle;
-    else if (size >= 34)
-        font = mFontLarge;
-    else if (size >= 23)
-        font = mFontMedium;
-
-    if (!font)
-    {
-        return;
-    }
-
-    SDL_Color color
-    {
-        245,
-        247,
-        255,
-        alpha
-    };
-
-    SDL_Surface* surface =
-        TTF_RenderUTF8_Blended(
-            font,
-            text.c_str(),
-            color
-        );
-
-    if (!surface)
-    {
-        return;
-    }
-
-    SDL_Texture* texture =
-        SDL_CreateTextureFromSurface(
-            mRenderer,
-            surface
-        );
-
-    if (!texture)
-    {
-        SDL_FreeSurface(surface);
-        return;
-    }
-
-    SDL_SetTextureAlphaMod(
-        texture,
-        alpha
-    );
-
-    SDL_Rect destination
-    {
-        centered
-            ? x - surface->w / 2
-            : x,
-        y,
-        surface->w,
-        surface->h
-    };
-
-    SDL_RenderCopy(
-        mRenderer,
-        texture,
-        nullptr,
-        &destination
-    );
-
-    SDL_DestroyTexture(texture);
-    SDL_FreeSurface(surface);
-}
-
-// ============================================================
-// Output size
-// ============================================================
-
-void Renderer::getOutputSize(
-    int& width,
-    int& height
-) const
-{
-    SDL_GetRendererOutputSize(
-        mRenderer,
-        &width,
-        &height
-    );
-}
+            centerX
