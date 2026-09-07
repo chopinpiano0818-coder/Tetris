@@ -79,16 +79,16 @@ Renderer::Renderer(
       mSettings(&settings)
 {
     mFontSmall =
-        TTF_OpenFont(FONT_PATH, 18);
+    openJapaneseFont(18);
 
     mFontMedium =
-        TTF_OpenFont(FONT_PATH, 26);
+    openJapaneseFont(26);
 
     mFontLarge =
-        TTF_OpenFont(FONT_PATH, 40);
+    openJapaneseFont(40);
 
     mFontTitle =
-        TTF_OpenFont(FONT_PATH, 68);
+    openJapaneseFont(68);
 
     applySettings(settings);
 }
