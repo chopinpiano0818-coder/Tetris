@@ -50,15 +50,8 @@ target_include_directories(
 
 if(WIN32)
 
-    message(STATUS "Target: Windows")
-
-    find_package(
-        SDL2 CONFIG REQUIRED
-    )
-
-    find_package(
-        SDL2_ttf CONFIG REQUIRED
-    )
+    find_package(SDL2 CONFIG REQUIRED)
+    find_package(SDL2_ttf CONFIG REQUIRED)
 
     target_link_libraries(
         TetrisComplete
@@ -68,7 +61,6 @@ if(WIN32)
         SDL2_ttf::SDL2_ttf
     )
 
-    # 日本語文字列をUTF-8としてコンパイル
     if(MSVC)
         target_compile_options(
             TetrisComplete
@@ -77,6 +69,8 @@ if(WIN32)
             /W4
         )
     endif()
+
+endif()
 
 # ============================================================
 # Linux / Raspberry Pi
